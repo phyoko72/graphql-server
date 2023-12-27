@@ -1,4 +1,24 @@
 export const typeDefs = `#graphql
+
+    type Person {
+        name: String!,
+        phone: String,
+        street: String!,
+        city: String!,
+        id: ID!
+    }
+
+    type User {
+        username: String!
+        password: String!
+        friends: [Person!]!
+        id: ID!
+    }
+
+    type Token {
+        value: String!
+    }
+
     type Author {
         name: String!,
         id: ID!,
@@ -13,7 +33,17 @@ export const typeDefs = `#graphql
         genres: [String!]!
     }
 
+    enum HasPhone{
+      YES
+      NO
+    }
+
     type Query{
+        personCount: Int!
+        allPersons(phone:HasPhone):[Person]!
+        currentLoggedInUser: User
+
+        
         bookCount: Int!
         authorCount: Int!
         allBooks(author:String,genres:String): [Book!]!
@@ -21,9 +51,21 @@ export const typeDefs = `#graphql
     }
 
     type Mutation{
+        addPerson(person:AddPerson!):Person
+        createUser(username:String!,password:String!):User
+        loginUser(username:String!,password:String!):Token
+        addFriend(name:String!):User
+
         addBook(book:NewBook!):Book
         editAuthor(id:ID!,info:AuthorInfo):Author
         setBirthYear(name:String!,year:Int!):Author
+    }
+
+    input AddPerson{
+        name: String!,
+        phone: String,
+        street: String!,
+        city: String!,
     }
 
     input AuthorInfo{

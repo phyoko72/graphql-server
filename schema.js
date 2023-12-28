@@ -1,5 +1,10 @@
 export const typeDefs = `#graphql
 
+    type Subscription{
+        personAdded: Person!,
+        bookAdded: Book!
+    }
+
     type Person {
         name: String!,
         phone: String,

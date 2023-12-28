@@ -3,6 +3,10 @@ import {GraphQLError} from "graphql"
 import Person from "./model/person.js"
 import User from "./model/user.js"
 import jwt from "jsonwebtoken"
+import {PubSub} from "graphql-subscriptions"
+
+const pubsub = new PubSub()
+
 export const resolvers = {
     Query: {
         personCount: async () => Person.collection.countDocuments(),
@@ -82,8 +86,10 @@ export const resolvers = {
                     },
                 })
             }
+            pubsub.publish("PERSON_ADDED", {personAdded: newPerson})
             return newPerson
         },
+
         createUser: async (_, args) => {
             const foundUser = await User.findOne({username: args.username})
             console.log({foundUser, args})
@@ -142,6 +148,9 @@ export const resolvers = {
             }
             const newBook = {...args.book, id}
             data.books.push(newBook)
+            pubsub.publish("BOOK_ADDED", {
+                bookAdded: newBook,
+            })
             return newBook
         },
         editAuthor(_, args) {
@@ -177,6 +186,14 @@ export const resolvers = {
             })
 
             return editedAuthor
+        },
+    },
+    Subscription: {
+        personAdded: {
+            subscribe: () => pubsub.asyncIterator(["PERSON_ADDED"]),
+        },
+        bookAdded: {
+            subscribe: () => pubsub.asyncIterator(["BOOK_ADDED"]),
         },
     },
 }
